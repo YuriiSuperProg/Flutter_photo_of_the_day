@@ -1,17 +1,83 @@
-# photo_of_the_day_vasilev
+# Фото дня (Photo of the Day)
 
-A new Flutter project.
+Flutter-приложение, которое загружает случайные фотографии собак и пейзажей
+из интернета через публичные API. Демонстрирует асинхронное программирование
+в Dart: `Future`, `async/await`, обработку ошибок и работу с HTTP-запросами.
 
-## Getting Started
+## Автор
 
-This project is a starting point for a Flutter application.
+- **Имя:** Васильев Юрий
+- **Группа:** ИСП-241
+- **Лабораторная работа:** №8 — Асинхронность в Dart и Flutter
 
-A few resources to get you started if this is your first Flutter project:
+## Стек и версии
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+| Компонент | Версия |
+|-----------|--------|
+| Flutter   | 3.x     |
+| Dart      | 3.x     |
+| Платформа | Web (Chrome) |
+| Пакет     | `http`  |
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Скриншот приложения
+
+![Скриншот приложения](/img/step2_Vasilev.png)
+
+## Запуск
+
+```bash
+git clone https://github.com/YuriiSuperProg/Flutter_photo_of_the_day
+cd photo_of_the_day_иванов
+flutter pub get
+flutter run -d chrome
+```
+
+## Что изучили
+
+- Что такое `Future<T>` и как он отличается от обычного возвращаемого значения
+- Ключевые слова `async`/`await` и как они делают асинхронный код читаемым
+- Обработка ошибок в асинхронном коде через `try/catch`
+- Отправка HTTP-запросов с помощью пакета `http` и парсинг JSON через `jsonDecode()`
+- Управление состоянием экрана во Flutter: `_isLoading`, `_errorMessage`, `_imageUrl`
+- Виджеты `CircularProgressIndicator`, `Image.network`, `ChoiceChip`, `ClipRRect`
+
+## Ответы на вопросы
+
+**1. Что такое `Future<T>`? Чем отличается от обычного возвращаемого значения?**
+
+`Future<T>` — это объект-обещание, который вернёт значение типа `T` в будущем.
+Обычное возвращаемое значение доступно сразу в момент вызова функции, а
+`Future<T>` — это «контейнер» для результата, которого ещё нет. К нему можно
+подписаться через `.then()` или дождаться через `await`.
+
+**2. Что делает `await`? Блокирует ли он весь поток выполнения?**
+
+`await` приостанавливает выполнение **текущей** функции до завершения `Future`.
+При этом он **не блокирует весь поток** — другие части программы (обработка
+UI, другие асинхронные задачи) продолжают работать. Flutter продолжает
+перерисовывать экран, пользователь может взаимодействовать с интерфейсом.
+
+**3. Зачем `setState()` вызывается дважды в `_fetchPhoto()`?**
+
+- **В начале** — чтобы сразу показать индикатор загрузки и сбросить предыдущий
+  результат (`_imageUrl = null`, `_errorMessage = null`).
+- **В конце** — чтобы скрыть загрузку и отобразить новый результат
+  (картинку или ошибку).
+
+Между этими вызовами происходит `await http.get(...)` — асинхронный запрос,
+во время которого UI должен показывать состояние загрузки.
+
+**4. Почему кнопке передаётся `_fetchPhoto` без скобок, а не `_fetchPhoto()`?**
+
+`onPressed` ожидает **ссылку на функцию** (callback), а не результат её вызова.
+- `_fetchPhoto` — передаём саму функцию, она вызовется при нажатии.
+- `_fetchPhoto()` — вызвали бы функцию **немедленно** при построении виджета,
+  а в `onPressed` попал бы результат (`Future<void>`), что приведёт к ошибке типа.
+
+**5. Чем `Image.network()` отличается от `Image.asset()`?**
+
+- `Image.network(url)` — загружает изображение по URL из интернета. Требует
+  подключения к сети. Flutter сам управляет загрузкой и кэшированием.
+- `Image.asset('assets/images/photo1.jpg')` — загружает изображение из
+  локальных ассетов, включённых в сборку приложения. Работает без интернета.
+  Требует регистрации пути в `pubspec.yaml` в разделе `flutter: assets:`.
